@@ -215,18 +215,72 @@ export async function deleteProjectById(prjectId: string) {
  }
 
 export async function getProjectInfo(idProject:string,details:boolean){
-      const project = await prisma.project.findUnique({
+      try {
+        const project = await prisma.project.findUnique({
         where : {
             id : idProject
         },
         include :details ? {
            tasks : {
             include : {
-                
+                user: true,
+                createdBy: true
             }
-           }
+           },
+
+           users : {
+                    select :{
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            }
+                        }
+                    }
+            },
+             createdBy: true
+            
         }: undefined
       })
 
+      if(!project){
+        throw new Error('Projet non trouvé');
+      }
+
+      return project
+        
+      } catch (error) {
+        console.error(error)
+        throw new Error
+      }
+
 }
+
+export async function getProjectUsers(idProject: string) {
+    try {
+        const projectWithUsers = await prisma.project.findUnique({
+            where: {
+                id: idProject
+            },
+            include: {
+                users: {
+                    include: {
+                        user: true,
+                    }
+                },
+            }
+
+        })
+
+        const users = projectWithUsers?.users.map((projectUser => projectUser.user)) || []
+        return users
+
+    } catch (error) {
+        console.error(error)
+        throw new Error
+    }
+}
+
+
 
