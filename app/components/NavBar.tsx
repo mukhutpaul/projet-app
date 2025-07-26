@@ -14,7 +14,7 @@ const NavBar = () => {
 
     const navLinks = [
         {
-            href:"/gereral-projects", label : "Collaborations"
+            href:"/general-project", label : "Collaborations"
         },
 
         {
