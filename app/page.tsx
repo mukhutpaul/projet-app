@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Wrapper from "./components/Wrapper";
 import { FolderGit } from "lucide-react";
-import { createProjet,  getProjectsCreatedByUser } from "./actions";
+import { createProjet,  deleteProjectById,  getProjectsCreatedByUser } from "./actions";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 import { Project } from "@/type";
@@ -54,6 +54,21 @@ export default function Home() {
        fetchPoject(email)
     }
   },[email])
+
+  const deleteProject = async (projectId:string) =>{
+
+    try {
+
+      await deleteProjectById(projectId)
+      fetchPoject(email)
+      toast.success("Project supprimé avec succès")
+      
+    } catch (error) {
+      throw new Error("Error deleting project: " + error)
+      
+    }
+
+  }
 
 
 
@@ -108,7 +123,7 @@ export default function Home() {
                 <ul className="w-full grid md:grid-cols-3 gap-6">
                   {projects.map((project) => (
                     <li key={project.id}>
-                      <ProjectComponent project={project} admin={1} style={true}></ProjectComponent>
+                      <ProjectComponent project={project} admin={1} style={true} onDelete={deleteProject}></ProjectComponent>
                     </li>
                   ))}
                 </ul>

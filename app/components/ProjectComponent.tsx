@@ -8,10 +8,18 @@ interface ProjectProps{
     project: Project
     admin : number;
     style : boolean;
+    onDelete?: (id:string) => void;
 }
 
-const ProjectComponent : FC<ProjectProps> = ({project,admin,style}) => {
+const ProjectComponent : FC<ProjectProps> = ({project,admin,style,onDelete}) => {
 
+    const handleDeleteClick = () => {
+        const isConfirmed = window.confirm("Etes-vous sûr de vouloir supprimer ce proet ?")
+
+        if(isConfirmed && onDelete){
+            onDelete(project.id)
+        }
+    }
     const  totalTasks = project.tasks?.length; 
     const  taskByStatus = project.tasks?.reduce(
         (acc,task) => {
@@ -157,7 +165,9 @@ const ProjectComponent : FC<ProjectProps> = ({project,admin,style}) => {
             )}
 
             {admin === 1 &&(
-                <button className='btn btn-sm ml-3'>
+                <button className='btn btn-sm ml-3'
+                onClick={handleDeleteClick}
+                >
                   
                    <Trash className='w-4'/>
                 </button>
