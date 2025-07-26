@@ -1,17 +1,38 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Wrapper from '../components/Wrapper'
 import { SquarePlus } from 'lucide-react'
 import { toast } from 'react-toastify'
-import { addUserToProject } from '../actions'
+import { addUserToProject, getProjectAssociatedWithUser } from '../actions'
 import { useUser } from '@clerk/nextjs'
+import { Project } from '@/type'
+import EmptyState from '../components/EmptyState'
+import ProjectComponent from '../components/ProjectComponent'
 
 const page = () => {
     const [inviteCode,setInviteCode] = useState("")
     const {user} = useUser()
+    const [associatedProjects,setAssociatedProjects] = useState<Project[]>([])
 
     const email = user?.primaryEmailAddress?.emailAddress as string
 
+    const fechProjects = async () =>{
+        try {
+
+            const assocciated = await getProjectAssociatedWithUser(email)
+            setAssociatedProjects(assocciated)
+
+            
+        } catch (error) {
+            toast.error("Erreur lors de chargement des projets")
+        }
+
+    }
+    useEffect(() =>{
+        if(email){
+            fechProjects()
+        }
+    },[email])
     const handleSubmit = async () => {
         try {
             if (inviteCode != "") {
@@ -45,6 +66,29 @@ const page = () => {
                 Rejoindre <SquarePlus className='w-4' />
             </button>
 
+        </div>
+
+        <div>
+            {associatedProjects.length > 0 ? (
+            
+                            <ul className="w-full grid md:grid-cols-3 gap-6">
+                              {associatedProjects.map((project) => (
+                                <li key={project.id}>
+                                  <ProjectComponent project={project} admin={0} style={true}></ProjectComponent>
+                                </li>
+                              ))}
+                            </ul>
+            
+                          ):(
+                              <div>
+                                <EmptyState imageSrc='/empty-project.png' 
+                                imageAlt='Picture of an empty project' 
+                                message="Aucun projet associé" />
+            
+                              </div>
+                          )
+            
+                          }
         </div>
     </Wrapper>
   )

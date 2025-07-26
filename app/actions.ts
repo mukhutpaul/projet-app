@@ -214,3 +214,19 @@ export async function deleteProjectById(prjectId: string) {
 
  }
 
+export async function getProjectInfo(idProject:string,details:boolean){
+      const project = await prisma.project.findUnique({
+        where : {
+            id : idProject
+        },
+        include :details ? {
+           tasks : {
+            include : {
+                
+            }
+           }
+        }: undefined
+      })
+
+}
+
