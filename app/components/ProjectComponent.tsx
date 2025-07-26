@@ -2,6 +2,7 @@ import { Project } from '@/type'
 import { Copy, ExternalLink, FolderGit, Trash } from 'lucide-react';
 import Link from 'next/link';
 import React, { FC } from 'react'
+import { toast } from 'react-toastify';
 
 interface ProjectProps{
     project: Project
@@ -30,6 +31,20 @@ const ProjectComponent : FC<ProjectProps> = ({project,admin,style}) => {
     const toDOPourcentage = totalTasks ? Math.round((taskByStatus.toDo / totalTasks) * 100) : 0
 
     const textSizeClass = style ? 'text-sm' : 'text-md'
+
+    const handleCopyCode = async ()=> {
+        try {
+            if(project.inviteCode){
+                await navigator.clipboard.writeText(project.inviteCode)
+                toast.success("Code d'invitation copié.")
+
+            }
+            
+        } catch (error) {
+            toast.error("Erreur lors de la copie du code d'invitation.")
+        }
+
+    }
 
   return (
     <div key={project.id} className={`${style ? 'border border-base-300 p-5 shadow-sm':''} text-base-content rounded-xl w-full text-left`}>
@@ -61,7 +76,9 @@ const ProjectComponent : FC<ProjectProps> = ({project,admin,style}) => {
               <p className='text-primary font-bold ml-3'>
                 {project.inviteCode}
               </p>
-              <button className='btn btn-sm ml-2'>
+              <button className='btn btn-sm ml-2'
+              onClick={handleCopyCode}
+              >
                 <Copy className='w-4'/>
               </button>
             </div>
