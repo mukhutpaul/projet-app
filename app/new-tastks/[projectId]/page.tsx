@@ -10,6 +10,20 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
 const page = ({params} : {params: Promise<{projectId : string}>}) => {
+    
+    
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'font': [] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['blockquote', 'code-block'],
+            ['link', 'image'],
+            ['clean']
+        ]
+    };
 
     const [projectId,setProjectId] = useState("");
         const [project,setProject] = useState<Project | null>(null);
@@ -17,6 +31,8 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
         const [selectedUser,setSelectedUser] = useState<User | null>(null)
         const [dueDate,setDueDate] = useState<Date | null>(null)
         const [name,setName] = useState("")
+        const [description,setDescription] = useState("")
+
     
         const fetchInfos = async (projectId : string) => {
             try {
@@ -94,7 +110,12 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
 
                     </div>
 
-                    <ReactQuill />
+                    <ReactQuill
+                    placeholder='Decrivez la tâche'
+                      value={description}
+                      modules={modules}
+                      onChange={setDescription}
+                     />
 
 
                 </div>
