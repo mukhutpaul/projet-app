@@ -4,9 +4,11 @@ import EmptyState from '@/app/components/EmptyState'
 import UserInfo from '@/app/components/UserInfo'
 import Wrapper from '@/app/components/Wrapper'
 import { Project, Task } from '@/type'
+import 'react-quill-new/dist/quill.snow.css';
 import Link from 'next/link'
 
 import React, { useEffect, useState } from 'react'
+import ReactQuill from 'react-quill-new'
 import { toast } from 'react-toastify'
 
 
@@ -14,9 +16,23 @@ const page = ({params} : {params: Promise<{taskId : string}>}) => {
 const [task, setTask] = useState<Task | null>(null)
 const [taskId, setTaskId] = useState<string>('')
 const [status, setStatus] = useState('')
+const [solution,setSolution] = useState('')
 
 const [projectId,setProjectId] = useState("");
 const [project,setProject] = useState<Project | null>(null);
+
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'font': [] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['blockquote', 'code-block'],
+            ['link', 'image'],
+            ['clean']
+        ]
+    };
 
   const fetchInfos = async ( taskId : string ) => {
     try {
@@ -118,6 +134,69 @@ const [project,setProject] = useState<Project | null>(null);
 
 
            </div>
+            
+            <div>
+              <div className='flex md:justify-between md:items-center flex-col md:flex-row'>
+                  <div className='p-5 border border-base-300 rounded-xl w-full md:w-fit my-4'>
+                 <UserInfo 
+                    role="Crée par"
+                    email={task?.createdBy?.email || null}
+                    name={task?.createdBy?.name || null}
+                    />
+                  </div>
+
+                  <div className='badge badge-primary mt-4 md:mt-0'>
+                      {task.dueDate && `
+                         ${Math.max(0,Math.ceil((new Date(task.dueDate).getTime() - new Date().getTime())/
+                          (1000 * 60 * 60 * 24)
+                        ))} Jours restants
+                      `}
+                  </div>
+
+              </div>
+            </div>
+
+            <div className='ql-snow w-full'>
+              <div
+              className='ql-editor p-5 border-base-300 border rounded-xl'
+              dangerouslySetInnerHTML={{__html: task.description}}
+              />
+            </div>
+
+            {task?.solutionDescription &&(
+              <div className='ql-snow w-full'>
+                <div className='badge badge-primary my-4'>
+                  Solution
+
+                </div>
+              <div
+              className='ql-editor p-5 border-base-300 border rounded-xl'
+              dangerouslySetInnerHTML={{__html: task.solutionDescription}}
+              />
+            </div>
+
+            )}
+
+            {/* You can open the modal using document.getElementById('ID').showModal() method */}
+        <button className="btn" onClick={()=>document.getElementById('my_modal_3').showModal()}>open modal</button>
+        <dialog id="my_modal_3" className="modal">
+          <div className="modal-box">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 className="font-bold text-lg">C'est quoi la solution</h3>
+            <p className="py-4">Décricez ce que vous avez fait exactement </p>
+
+            <ReactQuill
+                placeholder='Decrivez la solution'
+                value={solution}
+                modules={modules}
+                onChange={setSolution}
+              />
+          </div>
+        </dialog>
+
         </div>
       ):(
          <EmptyState  imageSrc='/empty-project.png' 

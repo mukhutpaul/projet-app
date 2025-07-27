@@ -32,7 +32,7 @@ const TaskComponent : FC<TaskProps> = ({task,index,email,onDelete}) => {
                 `}>
                   {task.status == "To Do" && 'A faire'}
                   {task.status == "In Progress" && 'En cours'}
-                  {task.status == "Done" && 'Terminé'}
+                  {task.status == "Done" && 'Terminée'}
                 </div>
                 <span className='text-sm font-bold'>
                   {task.name.length > 100 ? `${task.name.slice(0,100)}...`: task.name}
