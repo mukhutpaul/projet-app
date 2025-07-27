@@ -26,8 +26,8 @@ const TaskComponent : FC<TaskProps> = ({task,index,email,onDelete}) => {
         <td>
             <div className='flex flex-col'>
                 <div className={`badge text-xs mb-2
-                   ${task.status == "To Do" ? "bg-red-200 font-semibold":""}  
-                   ${task.status == "In Progress" ? "bg-yellow-200 font-semibold":""}
+                  ${task.status == "To Do" ? "bg-red-200 font-semibold":""}  
+                  ${task.status == "In Progress" ? "bg-yellow-200 font-semibold":""}
                   ${task.status == "Done" ? "bg-green-200 font-semibold":""}
                 `}>
                   {task.status == "To Do" && 'A faire'}

@@ -21,12 +21,10 @@ const page = () => {
 
             const assocciated = await getProjectAssociatedWithUser(email)
             setAssociatedProjects(assocciated)
-
-            
+   
         } catch (error) {
             toast.error("Erreur lors de chargement des projets")
         }
-
     }
     useEffect(() =>{
         if(email){
