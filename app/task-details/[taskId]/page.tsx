@@ -10,6 +10,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import ReactQuill from 'react-quill-new'
 import { toast } from 'react-toastify'
+import { useUser } from '@clerk/nextjs'
 
 
 const page = ({params} : {params: Promise<{taskId : string}>}) => {
@@ -17,6 +18,10 @@ const [task, setTask] = useState<Task | null>(null)
 const [taskId, setTaskId] = useState<string>('')
 const [status, setStatus] = useState('')
 const [solution,setSolution] = useState('')
+
+const [realStatus,setRealStatus] = useState('')
+    const { user } = useUser();
+    const email = user?.primaryEmailAddress?.emailAddress as string
 
 const [projectId,setProjectId] = useState("");
 const [project,setProject] = useState<Project | null>(null);
@@ -39,6 +44,7 @@ const [project,setProject] = useState<Project | null>(null);
       const task = await getTaskDetails(taskId)
       setTask(task)
       setStatus(task.status)
+      setRealStatus(task.status)
       fetchProject(task.projectId)
     } catch (error) {
       toast.error("Erreur lors du chargement des details de la tâche.")
@@ -73,11 +79,33 @@ const [project,setProject] = useState<Project | null>(null);
     const newStatus = event.target.value
 
     setStatus(newStatus)
+    const modal = document.getElementById('my_modal_3') as HTMLDialogElement
 
     if(newStatus == "To Do" || newStatus == "In Progress"){
       changeStatus(taskId,newStatus)
       toast.success("Status changé")
+      modal.close()
+    }else{
+       modal.showModal()
     }
+  }
+
+const closeTask = async (newStatus: string)=>{
+    const modal = document.getElementById('my_modal_3') as HTMLDialogElement
+     try {
+      if(solution != ""){
+        await updateTaskStatus(taskId,newStatus,solution)
+        fetchInfos(taskId)
+        if(modal){
+          modal.close()
+        }
+        toast.success("Tâche cloturée")
+      }else{
+        toast.error("Il manque une solution")
+      }
+     } catch (error) {
+      
+     }
   }
   
   useEffect(() =>{
@@ -88,6 +116,26 @@ const [project,setProject] = useState<Project | null>(null);
           } 
            getId()
       },[params])
+
+  useEffect(() =>{
+    const modal = document.getElementById('my_modal_3') as HTMLDialogElement
+    
+    const handleClose =()=>{
+        if(status === "Done" && status !== realStatus){
+            setStatus(realStatus)
+        }
+    }
+
+    if(modal) {
+      modal.addEventListener('close',handleClose)
+    }
+    return () => {
+      if(modal){
+        modal.removeEventListener('close',handleClose)
+      }
+    }
+
+  },[status,realStatus])
   return (
     <Wrapper>
       {task ? (
@@ -123,12 +171,13 @@ const [project,setProject] = useState<Project | null>(null);
             <div>
               <select
               value={status}
+              disabled={status == "Done" || task.user?.email !== email}
               onChange={handlestatusChange}
               className='select select-sm select-bordered select-primary focus:outline-none ml-3'
               >
                  <option value="To Do">A faire</option>
                  <option value="In Progress">En cours</option>
-                 <option value="To Do">Terminée</option>
+                 <option value="Done">Terminée</option>
               </select>
             </div>
 
@@ -137,7 +186,7 @@ const [project,setProject] = useState<Project | null>(null);
             
             <div>
               <div className='flex md:justify-between md:items-center flex-col md:flex-row'>
-                  <div className='p-5 border border-base-300 rounded-xl w-full md:w-fit my-4'>
+                  <div className='p-5 border border-base-300 rounded-xl w-full md:w-fit'>
                  <UserInfo 
                     role="Crée par"
                     email={task?.createdBy?.email || null}
@@ -145,7 +194,7 @@ const [project,setProject] = useState<Project | null>(null);
                     />
                   </div>
 
-                  <div className='badge badge-primary mt-4 md:mt-0'>
+                  <div className='badge badge-primary my-4 md:mt-0'>
                       {task.dueDate && `
                          ${Math.max(0,Math.ceil((new Date(task.dueDate).getTime() - new Date().getTime())/
                           (1000 * 60 * 60 * 24)
@@ -178,7 +227,7 @@ const [project,setProject] = useState<Project | null>(null);
             )}
 
             {/* You can open the modal using document.getElementById('ID').showModal() method */}
-        <button className="btn" onClick={()=>document.getElementById('my_modal_3').showModal()}>open modal</button>
+        
         <dialog id="my_modal_3" className="modal">
           <div className="modal-box">
             <form method="dialog">
@@ -194,7 +243,10 @@ const [project,setProject] = useState<Project | null>(null);
                 modules={modules}
                 onChange={setSolution}
               />
+              <button onClick={() => closeTask(status)}className='btn mt-4 '>Terminé(e)</button>
           </div>
+
+
         </dialog>
 
         </div>

@@ -16,7 +16,7 @@ const page = () => {
 
     const email = user?.primaryEmailAddress?.emailAddress as string
 
-    const fechProjects = async () =>{
+    const fechProjects = async (email:string) =>{
         try {
 
             const assocciated = await getProjectAssociatedWithUser(email)
@@ -30,13 +30,14 @@ const page = () => {
     }
     useEffect(() =>{
         if(email){
-            fechProjects()
+            fechProjects(email)
         }
     },[email])
     const handleSubmit = async () => {
         try {
             if (inviteCode != "") {
                 await addUserToProject(email, inviteCode)
+                fechProjects(email)
                 setInviteCode("")
                 toast.success('Vous pouvez maintenant collaboré sur ce projet');
             } else {
@@ -46,7 +47,6 @@ const page = () => {
             toast.error("Code invalide ou vous appartenez déjà au projet");
         }
     }
-
 
   return (
     <Wrapper>
@@ -71,24 +71,24 @@ const page = () => {
         <div>
             {associatedProjects.length > 0 ? (
             
-                            <ul className="w-full grid md:grid-cols-3 gap-6">
-                              {associatedProjects.map((project) => (
-                                <li key={project.id}>
-                                  <ProjectComponent project={project} admin={0} style={true}></ProjectComponent>
-                                </li>
-                              ))}
-                            </ul>
+                <ul className="w-full grid md:grid-cols-3 gap-6">
+                    {associatedProjects.map((project) => (
+                    <li key={project.id}>
+                    <ProjectComponent project={project} admin={0} style={true}></ProjectComponent>
+                        </li>
+                ))}
+                </ul>
             
-                          ):(
-                              <div>
-                                <EmptyState imageSrc='/empty-project.png' 
-                                imageAlt='Picture of an empty project' 
-                                message="Aucun projet associé" />
+                ):(
+                    <div>
+                        <EmptyState imageSrc='/empty-project.png' 
+                        imageAlt='Picture of an empty project' 
+                        message="Aucun projet associé" />
             
-                              </div>
+                    </div>
                           )
             
-                          }
+                }
         </div>
     </Wrapper>
   )

@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 const page = ({params} : {params: Promise<{projectId : string}>}) => {
 
     const { user } = useUser();
-    const email = user?.primaryEmailAddress?.emailAddress
+    const email = user?.primaryEmailAddress?.emailAddress as string
 
     const [projectId,setProjectId] = useState("");
     const [project,setProject] = useState<Project | null>(null);
@@ -55,7 +55,7 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
             setTaskCount(counts)
         }
 
-    },[params])
+    },[project,params])
 
     const filteredTasks = project?.tasks?.filter(task => {
         const statusMatch = !assignedFilter || task.status == statusFilter
@@ -102,34 +102,41 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
                 <div className='md:flex md:justify-between'>
                     <div className='flex flex-col'>  
                         <div className='space-x-2 mt-2'>
-                            <button
-                             onClick={() =>{setStatusFilter('');setAssignedFilter(false)}}
-                             className={`btn btn-sm rounded-xl ${!statusFilter && !assignedFilter ?
-                                'btn-primary':''
-                             }`}
-                            >
-                                <SlidersHorizontal className='w-4'/>Tous({project?.tasks?.length || 0})
-                            </button>
+                                <button
+                                    onClick={() => { setStatusFilter(''); setAssignedFilter(false) }}
+                                    className={`btn btn-sm rounded-full${!statusFilter ? 'btn-primary' : ''}`}>
+                                    <SlidersHorizontal className='w-4' /> Tous ({project?.tasks?.length || 0})
+                                </button>
 
-                            <button
-                             onClick={() =>{setStatusFilter('To Do')}}
-                             className={`btn btn-sm rounded-xl ${statusFilter === "todo" ?
-                                'btn-primary':''
-                             }`}
-                            >
-                                <ListTodo className='w-4'/>
-                                A faire ({taskCount.todo})
-                            </button>
+                                <button
+                                    onClick={() => { setStatusFilter('To Do') }}
+                                    className={`btn btn-sm rounded-xl  ${statusFilter === "To Do" ? 'btn-primary' : ''}`}>
+                                    <ListTodo className='w-4' />
+                                    A faire ({taskCount.todo})
+                                </button>
 
-                            <button
-                             onClick={() =>{setStatusFilter('To Do')}}
-                             className={`btn btn-sm rounded-xl ${statusFilter === "todo" ?
-                                'btn-primary':''
-                             }`}
-                            >
-                                <Loader className='w-4'/>
-                                En cours ({taskCount.inProgress})
-                            </button>
+                                <button
+                                    onClick={() => { setStatusFilter('In Progress') }}
+                                    className={`btn btn-sm rounded-xl  ${statusFilter === "In Progress" ? 'btn-primary' : ''}`}>
+                                    <Loader className='w-4' />
+                                    En cours ({taskCount.inProgress})
+                                </button>
+
+                            </div>
+                            <div className='space-x-2 mt-2'>
+                                <button
+                                    onClick={() => { setStatusFilter('Done') }}
+                                    className={`btn btn-sm rounded-xl  ${statusFilter === "Done" ? 'btn-primary' : ''}`}>
+                                    <CircleCheckBig className='w-4' />
+                                    Finis ({taskCount.done})
+                                </button>
+
+                                <button
+                                    onClick={() => { setAssignedFilter(!assignedFilter) }}
+                                    className={`btn btn-sm rounded-xl ${assignedFilter ? 'btn-primary' : ''}`}>
+                                    <UserCheck className='w-4' />
+                                    Vos tâches ({taskCount.assigned})
+                                </button>
                         </div>
                         
                         <div className='space-x-2 mt-2'>
@@ -146,35 +153,7 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
                     </Link>  
                 </div>
 
-                <div className='flex flex-col'>  
-                        <div className='space-x-2 mt-2'>
-                           
-                            <button
-                             onClick={() =>{setStatusFilter('To Do')}}
-                             className={`btn btn-sm rounded-xl ${statusFilter === "todo" ?
-                                'btn-primary':''
-                             }`}
-                            >
-                                <CircleCheckBig className='w-4'/>
-                                Finies ({taskCount.done})
-                            </button>
-
-                            <button
-                             onClick={() =>{setAssignedFilter(!assignedFilter)}}
-                             className={`btn btn-sm rounded-xl ${statusFilter === "todo" ?
-                                'btn-primary':''
-                             }`}
-                            >
-                                <UserCheck className='w-4'/>
-                                Vos tâches ({taskCount.assigned})
-                            </button>
-                        </div>
-                        
-                        <div className='space-x-2 mt-2'>
-
-                        </div>
                 
-                </div>
             
              <div className='mt-6 border border-base-300 p-5 shadow-sm rounded-xl'>
 
