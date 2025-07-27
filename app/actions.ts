@@ -282,5 +282,145 @@ export async function getProjectUsers(idProject: string) {
     }
 }
 
+export async function createTask(
+    name: string,
+    description : string,
+    dueDate : Date | null,
+    projectId : string,
+    createdByEmail : string,
+    assignToEmail : string | undefined
+) {
+
+    try {
+        const createdBy = await prisma.user.findUnique({
+            where : {
+                email: createdByEmail
+            }
+        })
+
+        if(!createdBy){
+            throw new Error(`Utilisateur avec l'email ${createdByEmail} introuvable`)
+        }
+
+        let assignedUserId = createdBy.id
+
+        if(assignToEmail){
+            if(assignToEmail){
+                const assignedUser = await  prisma.user.findUnique({
+                    where : { email : createdByEmail}
+                })
+
+                if(!assignedUser){
+                    throw new Error(`Utilisateur avec l'eamil ${assignToEmail} introuvable`);
+                }
+                assignedUserId = assignedUser.id
+            }
+
+            const newTask = await prisma.task.create({
+                data : {
+                    name,
+                    description,
+                    dueDate,
+                    projectId,
+                    createdById : createdBy.id,
+                    userId : assignedUserId
+                }
+            })
+            console.log("Tâche créée avec succès :",newTask)
+
+            
+        }
+
+       
+        
+    } catch (error) {
+        console.error(error)
+        throw new Error
+    }
+
+}
+
+export async function deleteTask(taskId: string) {
+
+   try {
+      await prisma.task.delete({
+        where : {
+            id: taskId
+        }
+      })
+    
+   } catch (error) {
+    console.error(error)
+    throw new Error
+    
+   }
+
+}
+
+export async function getTaskDetails(taskId:string){
+  try {
+    const task = await prisma.task.findUnique({
+        where : {
+            id: taskId
+        },
+        include : {
+            project : true,
+            user : true,
+            createdBy : true
+        }
+    })
+    
+    if(!task) {
+        throw new Error("Tâche non trouvée")
+    }
+    return task
+  } catch (error) {
+    console.error(error)
+    throw new Error
+  }
+}
+
+export async function updateTaskStatus(taskId:string,newStatus : string,solutionDescription?: string){
+    try {
+
+        const existingTask = await prisma.task.findUnique({
+            where : {
+                id: taskId
+            }
+        })
+
+        if(!existingTask) {
+            throw new Error('Tâche no trouvée')
+        }
+
+        if(newStatus === "Done" && solutionDescription){
+          await prisma.task.update({
+            where : {
+                id : taskId
+            },
+            data : {
+                status:newStatus,
+                solutionDescription
+            }
+          })
+        }else {
+            await prisma.task.update({
+                where : {id: taskId},
+                data : {
+                    status : newStatus
+                }
+            })
+
+        }
+        
+    } catch (error) {
+        console.error(error)
+        throw new Error
+    }
+}
+
+
+
+
 
 

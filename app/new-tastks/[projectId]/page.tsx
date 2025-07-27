@@ -1,13 +1,16 @@
 "use client"
-import { getProjectInfo, getProjectUsers } from '@/app/actions';
+import { createTask, getProjectInfo, getProjectUsers } from '@/app/actions';
 import AssignTask from '@/app/components/AssignTask';
 import Wrapper from '@/app/components/Wrapper'
 import { User } from '@/lib/generated/prisma';
 import { Project } from '@/type';
+import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { toast } from 'react-toastify';
 
 const page = ({params} : {params: Promise<{projectId : string}>}) => {
     
@@ -32,6 +35,10 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
         const [dueDate,setDueDate] = useState<Date | null>(null)
         const [name,setName] = useState("")
         const [description,setDescription] = useState("")
+        const {user} = useUser()
+        const email = user?.primaryEmailAddress?.emailAddress as string
+
+        const router = useRouter()
 
     
         const fetchInfos = async (projectId : string) => {
@@ -60,6 +67,20 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
     const handleUserSelect = (user: User) => {
         setSelectedUser(user) 
             
+    }
+
+    const handleSubmit = async () => {
+        if(!name || !projectId || !selectedUser || !description || !dueDate){
+            toast.error("Veuillez remplir tous les champs obligatoire")
+            return
+        }
+        try {
+            await createTask(name,description,dueDate,projectId,email,selectedUser.email)
+            router.push(`/project/${projectId}`)
+            
+        } catch (error) {
+            toast.error("Une erreur lors de la création de la tâche."+ error)
+        }
     }
 
   return (
@@ -107,20 +128,20 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
                         onChange={(e) =>setName(e.target.value)}
                         type="text" 
                         />
-
-                    </div>
-
                     <ReactQuill
-                    placeholder='Decrivez la tâche'
+                      placeholder='Decrivez la tâche'
                       value={description}
                       modules={modules}
                       onChange={setDescription}
                      />
+                    </div>
 
-
+                    <div className='flex justify-end'>
+                        <button  className='btn mt-4 btn-md btn-primary rounded-2xl'
+                        onClick={handleSubmit}
+                        >Créer la tâche</button>
+                    </div>   
                 </div>
-
-
             </div>
         </div>
     </Wrapper>
