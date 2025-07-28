@@ -14,7 +14,7 @@ interface ProjectProps{
 const ProjectComponent : FC<ProjectProps> = ({project,admin,style,onDelete}) => {
 
     const handleDeleteClick = () => {
-        const isConfirmed = window.confirm("Etes-vous sûr de vouloir supprimer ce proet ?")
+        const isConfirmed = window.confirm("Etes-vous sûr de vouloir supprimer ce projet ?")
 
         if(isConfirmed && onDelete){
             onDelete(project.id)

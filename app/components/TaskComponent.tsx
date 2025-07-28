@@ -8,18 +8,20 @@ interface TaskProps {
     task : Task
     index : number,
     email?: string,
-     onDelete?: (id:string)  => void
+    onDelete? : (id: string) => void
 }
 
 const TaskComponent : FC<TaskProps> = ({task,index,email,onDelete}) => {
+    
+    const canDelete = email == task.createdBy?.email
 
-  const canDelete = email == task.createdBy?.email
-
-  const handleDeleteClick = () => {
-    if(onDelete){
-      onDelete(task.id)
+    const handleDeleteClick = () => {
+        if(onDelete){
+            onDelete(task.id)
+        }
     }
-  }
+
+
   return (      
      <>
         <td>{index +1 }</td>
@@ -64,12 +66,10 @@ const TaskComponent : FC<TaskProps> = ({task,index,email,onDelete}) => {
               </Link>
 
               {canDelete && (
-                <button className='btn btn-sm ml-2'
-                onClick={handleDeleteClick}
-                >
-                  <Trash className='w-4'/>
-                </button>
-              )}
+                  <button onClick={handleDeleteClick} className='btn btn-sm ml-2 rounded-xl'>
+                      <Trash className='w-4' />
+                  </button>
+               )}
 
            </div>
         </td>

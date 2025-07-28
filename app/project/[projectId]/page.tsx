@@ -1,5 +1,5 @@
 "use client"
-import { getProjectInfo } from '@/app/actions';
+import { deleteTaskById, getProjectInfo } from '@/app/actions';
 import EmptyState from '@/app/components/EmptyState';
 import ProjectComponent from '@/app/components/ProjectComponent';
 import TaskComponent from '@/app/components/TaskComponent';
@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 const page = ({params} : {params: Promise<{projectId : string}>}) => {
 
     const { user } = useUser();
-    const email = user?.primaryEmailAddress?.emailAddress as string
+    const email = user?.primaryEmailAddress?.emailAddress;
 
     const [projectId,setProjectId] = useState("");
     const [project,setProject] = useState<Project | null>(null);
@@ -66,7 +66,7 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
 
     const deleteTask = async (taskId : string) => {
         try {
-            await deleteTask(taskId)
+            await deleteTaskById(taskId)
             fetchInfos(projectId)
             toast.success("Tâche supprimée")
         } catch (error) {
@@ -173,7 +173,7 @@ const page = ({params} : {params: Promise<{projectId : string}>}) => {
                         <tbody className='w-fit'>
                             {filteredTasks.map((task,index) => (
                                 <tr key={task.id} className='border-t last:border-none'>
-                                    <TaskComponent task={task} index={index} email={email} onDelete={deleteTask}/>
+                                <TaskComponent task={task} index={index} onDelete={deleteTask} email={email} />
 
                                 </tr>
 
